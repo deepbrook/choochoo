@@ -1,5 +1,5 @@
 from unittest import TestCase
-from choochoo import Fahrplan, BahnPark, Cargo
+from choochoo import Fahrplan, BahnPark, Cargo, FaSta
 from requests import HTTPError
 
 
@@ -201,3 +201,67 @@ class CargoTests(TestCase):
         # parameters are passed
         with self.assertRaises(ValueError):
             self.api.delays(by_name=station_name, by_id=station_id)
+
+
+class FaStaTests(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(FaStaTests, self).__init__(*args, **kwargs)
+        self.api = None
+
+    def setUp(self):
+        self.api = FaSta(config='config.ini')
+
+    def tearDown(self):
+        self.api = None
+
+    def test_station_facility_states_returns_200_and_expected_python_obj(self):
+        station_num = 767
+        try:
+            resp = self.api.disruptions_by_station(station_num)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+    def test_disrupted_elevators_returns_200_and_decoded_json(self):
+        try:
+            resp = self.api.disrupted_elevators()
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_disrupted_escalators_returns_200_and_decoded_json(self):
+        try:
+            resp = self.api.disrupted_escalators()
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_disruption_details_returns_200_and_decoded_json(self):
+        journey_id = '25501678'
+        try:
+            resp = self.api.journey_details(journey_id)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_get_elevators_returns_200_and_decoded_json(self):
+        try:
+            resp = self.api.get_elevators()
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_get_escalators_returns_200_and_decoded_json(self):
+        try:
+            resp = self.api.get_escalators()
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_facility_state_returns_200_and_decoded_json(self):
+        equip_num = 10441823
+        try:
+            resp = self.api.facility_state(equip_num)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
