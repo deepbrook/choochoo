@@ -100,7 +100,7 @@ class BahnParkTests(TestCase):
         with self.assertRaises(ValueError):
             self.api.occupancies(prognoses=True)
 
-   def test_stations_returns_200_and_decoded_json_and_supports_params(self):
+    def test_stations_returns_200_and_decoded_json_and_supports_params(self):
         space_id = '100035'  # Bonn Hbf P1 Bonn Hbf P1 Parkhaus
 
         # Assert Passing no params works
@@ -127,3 +127,34 @@ class BahnParkTests(TestCase):
         # Assert passing pit=True and ID raises a valueError
         with self.assertRaises(ValueError):
             self.api.stations(by_id=space_id, prognoses=True)
+
+
+class BetriebsstellenTests(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(BetriebsstellenTests, self).__init__(*args, **kwargs)
+        self.api = None
+
+    def setUp(self):
+        self.api = BahnPark(config='config.ini')
+
+    def tearDown(self):
+        self.api = None
+
+    def test_betriebsstellen_returns_200_and_works_as_expected(self):
+        try:
+            resp = self.api.betriebsstellen()
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, list)
+
+        try:
+            resp = self.api.betriebsstellen('Ascheberg')
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+        try:
+            resp = self.api.betriebsstellen('AAG', is_abbreviation=True)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
