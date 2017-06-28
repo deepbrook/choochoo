@@ -14,7 +14,7 @@ class Betriebsstellen(Interface):
         self.address += 'betriebsstellen/v1/'
 
     def request(self, endpoint, verb=None, **req_kwargs):
-        """Returns Data from BahnPark endpoint as python object.
+        """Returns Data from Betriebsstellen endpoint as python object.
 
         Querys API using a super() call to Interface.request(), checks the 
         HTTP status code and returns the response's json data 

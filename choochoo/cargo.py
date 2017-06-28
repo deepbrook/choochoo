@@ -2,7 +2,7 @@ from .base import Interface
 
 
 class Cargo(Interface):
-    """Wrapper for Deutsche Bahn's FahrplanPlus API.
+    """Wrapper for Deutsche Bahn's Cargo Delay Statistics API.
 
     Documentation at: 
         https://developer.deutschebahn.com/store/apis/info?name=Fahrplan&version=v1&provider=DBOpenData
@@ -14,7 +14,7 @@ class Cargo(Interface):
         self.address += 'cargo/v1/'
 
     def request(self, endpoint, verb=None, **req_kwargs):
-        """Returns Data from FahrplanPlus endpoint as python object.
+        """Returns Data from Cargo Delay Statistics endpoint as python object.
 
         Querys API using a super() call to Interface.request(), checks the 
         HTTP status code and returns the response's json data 

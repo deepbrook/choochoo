@@ -4,7 +4,7 @@ from .base import Interface
 
 
 class Fahrplan(Interface):
-    """Wrapper for Deutsche Bahn's FahrplanPlus API.
+    """Wrapper for Deutsche Bahn's Fahrplan API.
     
     Documentation at: 
         https://developer.deutschebahn.com/store/apis/info?name=Fahrplan&version=v1&provider=DBOpenData
