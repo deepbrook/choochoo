@@ -1,5 +1,5 @@
 from unittest import TestCase
-from choochoo import Fahrplan, BahnPark
+from choochoo import Fahrplan, BahnPark, Cargo
 from requests import HTTPError
 
 
@@ -9,7 +9,7 @@ class FahrplanPlusTests(TestCase):
         self.api = None
 
     def setUp(self):
-        self.api = FahrplanPlus(config='config.ini')
+        self.api = Fahrplan(config='config.ini')
 
     def tearDown(self):
         self.api = None
@@ -158,3 +158,46 @@ class BetriebsstellenTests(TestCase):
         except HTTPError:
             self.fail('Status Code Was NOT 200!')
         self.assertIsInstance(resp, (list, dict))
+
+
+class CargoTests(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(CargoTests, self).__init__(*args, **kwargs)
+        self.api = None
+
+    def setUp(self):
+        self.api = Cargo(config='config.ini')
+
+    def tearDown(self):
+        self.api = None
+
+    def test_betriebsstellen_returns_200_and_works_as_expected(self):
+        station_id = '80007799'
+        station_name = 'BERLIN-TEMPELHOF'
+
+        try:
+            resp = self.api.delays(by_name=station_name)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, list)
+
+        try:
+            resp = self.api.delays(by_id=station_id)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+        try:
+            resp = self.api.delays(by_lat_long=(52.451352, 13.409066))
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+        # Assert theres a ValueError raised if no parameters passed
+        with self.assertRaises(ValueError):
+            self.api.delays()
+
+        # Assert theres ValueError raised if more than two of the named
+        # parameters are passed
+        with self.assertRaises(ValueError):
+            self.api.delays(by_name=station_name, by_id=station_id)
