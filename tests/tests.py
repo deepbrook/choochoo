@@ -1,5 +1,5 @@
 from unittest import TestCase
-from choochoo import Fahrplan, BahnPark, Cargo, FaSta
+from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster
 from requests import HTTPError
 
 
@@ -262,6 +262,125 @@ class FaStaTests(TestCase):
         equip_num = 10441823
         try:
             resp = self.api.facility_state(equip_num)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+
+class FlinksterTests(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(FlinksterTests, self).__init__(*args, **kwargs)
+        self.api = None
+
+    def setUp(self):
+        self.api = Flinkster(config='config.ini')
+
+    def tearDown(self):
+        self.api = None
+
+    def test_get_area_returns_200_and_expected_python_obj(self):
+        provider_network = 'flinkster'
+        area_uuid = '004576141E4B6345C0E6DA9FF4162A7E24EB3855'
+
+        # Assert searching with minimal required parameters works
+        try:
+            resp = self.api.get_area(provider_name=provider_network)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        # Assert searching with UUID works
+        try:
+            resp = self.api.get_area(by_id=area_uuid)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        # Assert passing no params raises a value error:
+        with self.assertRaises(ValueError):
+            self.api.get_area()
+
+    def test_booking_proposals_returns_200_and_decoded_json(self):
+        provider_network = 'flinkster'
+        provider_id = 1
+        lat = 52
+        lon = 13
+
+        # Assert searching with minimal required parameters works
+        try:
+            resp = self.api.booking_proposals(provider_name=provider_network,
+                                              lat=lat, lon=lon)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        # Assert searching with providernetwork id works
+        try:
+            resp = self.api.booking_proposals(lon=lon, lat=lat,
+                                              providernetwork=provider_id)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        # Assert passing no params raises a value error:
+        with self.assertRaises(ValueError):
+            self.api.booking_proposals()
+
+        # Assert passing only lat lon raises a value Error:
+        with self.assertRaises(ValueError):
+            self.api.booking_proposals(lat=lat, lon=lon)
+
+    def test_categories_returns_200_and_decoded_json(self):
+        provider_id = '1'
+        provider_name = 'flinkster'
+        category_id  = '1000'
+
+        # Assert querying by network only works as expected
+        try:
+            resp = self.api.categories(provider_name)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+        self.assertIn('item', resp)
+
+        # Assert querying by network and category ID works as expected
+        try:
+            resp = self.api.categories(provider_name, by_id=category_id)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+        self.assertNotIn('items', resp)
+
+    def test_prices_returns_200_and_decoded_json(self):
+        provider = 'flinkster'
+        try:
+            resp = self.api.prices(provider)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+    def test_rental_details_returns_200_and_decoded_json(self):
+        rental_uuid = 'Made_up_since_reference_missing'
+        provider = 'flinkster'
+        # Assert that request is good
+        try:
+            resp = self.api.rental_details(provider, rental_uuid)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+    def test_provider_details_returns_200_and_decoded_json(self):
+        provider = 'flinkster'
+        try:
+            resp = self.api.provider_details(provider)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, (list, dict))
+
+    def test_providers_returns_200_and_decoded_json(self):
+        provider_network_resource = 'Made_up_since_reference_missing'
+        try:
+            resp = self.api.providers(provider_network_resource)
         except HTTPError:
             self.fail('Status Code Was NOT 200!')
         self.assertIsInstance(resp, (list, dict))
