@@ -1,5 +1,5 @@
 from unittest import TestCase
-from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster
+from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren
 from requests import HTTPError
 
 
@@ -384,3 +384,49 @@ class FlinksterTests(TestCase):
         except HTTPError:
             self.fail('Status Code Was NOT 200!')
         self.assertIsInstance(resp, (list, dict))
+
+
+class ReisezentrenTests(TestCase):
+    def __init__(self, *args, **kwargs):
+        super(ReisezentrenTests, self).__init__(*args, **kwargs)
+        self.api = None
+
+    def setUp(self):
+        self.api = Reisezentren(config='config.ini')
+
+    def tearDown(self):
+        self.api = None
+
+    def test_get_area_returns_200_and_expected_python_obj(self):
+        center_id = '502542'
+        center_name = 'Bamberg'
+        lat_lon = (49.9, 10.898)
+        # Assert searching with minimal required parameters works
+        try:
+            resp = self.api.reizentren(by_center_name=center_name)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        try:
+            resp = self.api.reizentren(by_center_id=center_id)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        try:
+            resp = self.api.reizentren(by_lat_lon=lat_lon)
+        except HTTPError:
+            self.fail('Status Code Was NOT 200!')
+        self.assertIsInstance(resp, dict)
+
+        # Assert that a value Error is raised if no or two or more
+        # named kwargs are passed
+        with self.assertRaises(ValueError):
+            self.api.reizentren()
+
+        with self.assertRaises(ValueError):
+            self.api.reizentren(center_id, center_name)
+
+        with self.assertRaises(ValueError):
+            self.api.reizentren(center_id, center_name, lat_lon)
