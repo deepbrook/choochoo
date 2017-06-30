@@ -28,8 +28,7 @@ class Fahrplan(Interface):
         """
         req_kwargs['headers'] = {'Authorization': 'Bearer '+self.token,
                                  'Accept': 'application/json'}
-        resp = super(Fahrplan, self).request(endpoint, verb=verb,
-                                                 **req_kwargs)
+        resp = super(Fahrplan, self).request(endpoint, verb=verb, **req_kwargs)
         resp.raise_for_status()
         return resp.json()
 
@@ -48,8 +47,9 @@ class Fahrplan(Interface):
         :param date: date as string in format YYYY-MM-DD
         :return: requests.Response()
         """
+        date = datetime.datetime.today().strftime('%Y-%m-%d') if not date else date
         return self.request('arrivalBoard/%s' % location_id,
-                            params={'data': date})
+                            params={'date': date})
 
     def departures(self, location_id, date=None):
         """Returns departures of given location and date.
@@ -59,8 +59,8 @@ class Fahrplan(Interface):
         :return: requests.Response()
         """
         date = datetime.datetime.today().strftime('%Y-%m-%d') if not date else date
-        return self.request('departuresBoard/%s' % location_id,
-                            params={'data': date})
+        return self.request('departureBoard/%s' % location_id,
+                            params={'date': date})
 
     def journey_details(self, journey_id):
         """Returns details for given journey's id.
@@ -68,4 +68,5 @@ class Fahrplan(Interface):
         :param journey_id: str
         :return: requests.Response()
         """
-        return self.request('journeyDetails/%s' % journey_id)
+        journey_id = journey_id.replace('%', '\%')
+        return self.request("journeyDetails/%s" % journey_id)
