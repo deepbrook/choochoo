@@ -3,10 +3,11 @@ from unittest import TestCase
 from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren, Betriebsstellen
 from requests import HTTPError
 from datetime import datetime
-from urllib.parse import unquote
+from urllib.parse import quote
 
 requests_log = logging.getLogger('requests.packages.urllib3.connectionpool')
 requests_log.setLevel(logging.ERROR)
+
 
 class FahrplanTests(TestCase):
     def __init__(self, *args, **kwargs):
@@ -43,7 +44,7 @@ class FahrplanTests(TestCase):
         self.assertIsInstance(resp, (list, dict))
 
     def test_journey_details_returns_200_and_decoded_json(self):
-        journey_id = unquote(self.api.departures('8011160')[0]['detailsId'])
+        journey_id = quote(self.api.departures('8011160')[0]['detailsId'])
         try:
             resp = self.api.journey_details(journey_id)
         except HTTPError as e:
