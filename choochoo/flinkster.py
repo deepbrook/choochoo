@@ -53,7 +53,7 @@ class Flinkster(Interface):
         :return: list, dict
         """
         if by_id:
-            return self.request('/areas/%s' % by_id, params=endpoint_kwargs)
+            return self.request('areas/%s' % by_id, params=endpoint_kwargs)
         else:
             if 'providernetwork' not in endpoint_kwargs and not provider_name:
                 raise ValueError('Must at least pass "providernetwork" as '
@@ -63,7 +63,7 @@ class Flinkster(Interface):
             else:
                 pass
 
-            return self.request('/areas', params=endpoint_kwargs)
+            return self.request('areas', params=endpoint_kwargs)
 
     def booking_proposals(self, provider_name=None, **endpoint_kwargs):
         """Returns search query of bookin proposals.
@@ -71,14 +71,14 @@ class Flinkster(Interface):
         :param endpoint_kwargs: parameters as supported by endpoint
         :return: list, dict
         """
-        if (not all(k in endpoint_kwargs for k in ('lat', 'lon')) and
-                ('networkprovider' not in endpoint_kwargs or provider_name is None)):
+        if ((not all(k in endpoint_kwargs for k in ('lat', 'lon'))) or
+                ('providernetwork' not in endpoint_kwargs and provider_name is None)):
             raise ValueError("Must specify kwargs 'lat', 'lon' and either"
                              "'provider_name' or 'providernetwork'")
         elif provider_name:
             endpoint_kwargs['providernetwork'] = self._get_provider_id(provider_name)
 
-        return self.request('/bookingproposals', params=endpoint_kwargs)
+        return self.request('bookingproposals', params=endpoint_kwargs)
 
     def categories(self, provider, by_id=None, **endpoint_kwargs):
         """Returns available categories of specified network provider.
@@ -89,10 +89,10 @@ class Flinkster(Interface):
         """
         network_id = self._get_provider_id(provider)
         if by_id:
-            return self.request('/providernetworks/%s/categories/%s' %
+            return self.request('providernetworks/%s/categories/%s' %
                                 (network_id, by_id), params=endpoint_kwargs)
         else:
-            return self.request('/providernetworks/%s/categories' % network_id,
+            return self.request('providernetworks/%s/categories' % network_id,
                                 params=endpoint_kwargs)
 
     def prices(self, provider, **endpoint_kwargs):
