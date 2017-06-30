@@ -52,6 +52,8 @@ class BahnPark(Interface):
             return self.request('spaces', params=payload)
         elif by_id:
             return self.request('spaces/' + by_id, params=endpoint_kwargs)
+        else:
+            return self.request('spaces', params=endpoint_kwargs)
 
     def pit_parking(self, **endpoint_kwargs):
         """Retrieves a list of locations for pit parking services.
@@ -73,13 +75,13 @@ class BahnPark(Interface):
         if prognoses and not by_id:
             raise ValueError("Must specify a space ID to get prognoses")
 
-        endpoint = '/spaces'
+        endpoint = 'spaces'
         if by_id:
-            endpoint = '/spaces/%s'
+            endpoint = 'spaces/%s' % by_id
             if prognoses:
                 endpoint += '/prognoses'
             else:
-                endpoint += 'occupancies'
+                endpoint += '/occupancies'
         else:
             endpoint += '/occupancies'
 
@@ -98,7 +100,7 @@ class BahnPark(Interface):
             raise ValueError("stations/pit doesn't support querying by ID! "
                              "Must choose either!")
 
-        endpoint = '/stations'
+        endpoint = 'stations'
         if pit:
             endpoint += '/pit'
         elif by_id:

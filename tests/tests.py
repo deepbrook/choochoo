@@ -1,11 +1,13 @@
 from unittest import TestCase
 from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren
 from requests import HTTPError
+from datetime import datetime
+from urllib.parse import unquote
 
 
-class FahrplanPlusTests(TestCase):
+class FahrplanTests(TestCase):
     def __init__(self, *args, **kwargs):
-        super(FahrplanPlusTests, self).__init__(*args, **kwargs)
+        super(FahrplanTests, self).__init__(*args, **kwargs)
         self.api = None
 
     def setUp(self):
@@ -17,30 +19,33 @@ class FahrplanPlusTests(TestCase):
     def test_location_returns_200_and_expected_python_obj(self):
         try:
             resp = self.api.location('BERLIN')
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_arrivals_returns_200_and_decoded_json(self):
         try:
-            resp = self.api.arrivals('8011160')
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+            resp = self.api.arrivals('8011160',
+                                     date=datetime.today().strftime('%Y-%m-%d'))
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_departures_returns_200_and_decoded_json(self):
         try:
-            resp = self.api.departures('8011160')
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+            resp = self.api.departures('8011160',
+                                       date=datetime.today().strftime('%Y-%m-%d'))
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_journey_details_returns_200_and_decoded_json(self):
-        journey_id = '188058%2F75060%2F783144%2F328886%2F80%3fstation_evaId%3D8011160'
+        journey_id = unquote(self.api.departures('8011160')[0]['detailsId'])
         try:
             resp = self.api.journey_details(journey_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s - Journey_id: %s' %
+                      (e.response.status_code, e.request.url, journey_id))
         self.assertIsInstance(resp, (list, dict))
 
 
@@ -58,18 +63,18 @@ class BahnParkTests(TestCase):
     def test_spaces_returns_200_and_expected_python_obj(self):
         try:
             resp = self.api.spaces()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
         # Assert passing an ID returns data only for specified ID
-        resp = self.api.spaces(by_id=100002)
+        resp = self.api.spaces(by_id='100002')
         self.assertEqual(resp['id'], 100002)
 
     def test_pit_parking_returns_200_and_decoded_json(self):
         try:
-            resp = self.api.arrivals('8011160')
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+            resp = self.api.pit_parking()
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_occupancies_returns_200_and_decoded_json_and_supports_params(self):
@@ -78,22 +83,22 @@ class BahnParkTests(TestCase):
         # Assert Passing no params works
         try:
             resp = self.api.occupancies()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing an ID works
         try:
             resp = self.api.occupancies(by_id=space_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing an ID and prognoses=True works
         try:
             resp = self.api.occupancies(by_id=space_id, prognoses=True)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing prognoses=True and no ID raises a valueError
@@ -101,32 +106,32 @@ class BahnParkTests(TestCase):
             self.api.occupancies(prognoses=True)
 
     def test_stations_returns_200_and_decoded_json_and_supports_params(self):
-        space_id = '100035'  # Bonn Hbf P1 Bonn Hbf P1 Parkhaus
+        space_id = '767'  # Bonn Hbf P1 Bonn Hbf P1 Parkhaus
 
         # Assert Passing no params works
         try:
             resp = self.api.stations()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing an ID works
         try:
             resp = self.api.stations(by_id=space_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing pit=True works
         try:
             resp = self.api.stations(pit=True)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert passing pit=True and ID raises a valueError
         with self.assertRaises(ValueError):
-            self.api.stations(by_id=space_id, prognoses=True)
+            self.api.stations(by_id=space_id, pit=True)
 
 
 class BetriebsstellenTests(TestCase):
@@ -143,20 +148,20 @@ class BetriebsstellenTests(TestCase):
     def test_betriebsstellen_returns_200_and_works_as_expected(self):
         try:
             resp = self.api.betriebsstellen()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, list)
 
         try:
             resp = self.api.betriebsstellen('Ascheberg')
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         try:
             resp = self.api.betriebsstellen('AAG', is_abbreviation=True)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
 
@@ -177,20 +182,20 @@ class CargoTests(TestCase):
 
         try:
             resp = self.api.delays(by_name=station_name)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, list)
 
         try:
             resp = self.api.delays(by_id=station_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         try:
             resp = self.api.delays(by_lat_long=(52.451352, 13.409066))
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
         # Assert theres a ValueError raised if no parameters passed
@@ -218,52 +223,52 @@ class FaStaTests(TestCase):
         station_num = 767
         try:
             resp = self.api.disruptions_by_station(station_num)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
     def test_disrupted_elevators_returns_200_and_decoded_json(self):
         try:
             resp = self.api.disrupted_elevators()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_disrupted_escalators_returns_200_and_decoded_json(self):
         try:
             resp = self.api.disrupted_escalators()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_disruption_details_returns_200_and_decoded_json(self):
         journey_id = '25501678'
         try:
             resp = self.api.journey_details(journey_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_get_elevators_returns_200_and_decoded_json(self):
         try:
             resp = self.api.get_elevators()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_get_escalators_returns_200_and_decoded_json(self):
         try:
             resp = self.api.get_escalators()
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_facility_state_returns_200_and_decoded_json(self):
         equip_num = 10441823
         try:
             resp = self.api.facility_state(equip_num)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
 
@@ -285,15 +290,15 @@ class FlinksterTests(TestCase):
         # Assert searching with minimal required parameters works
         try:
             resp = self.api.get_area(provider_name=provider_network)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         # Assert searching with UUID works
         try:
             resp = self.api.get_area(by_id=area_uuid)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         # Assert passing no params raises a value error:
@@ -310,16 +315,16 @@ class FlinksterTests(TestCase):
         try:
             resp = self.api.booking_proposals(provider_name=provider_network,
                                               lat=lat, lon=lon)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         # Assert searching with providernetwork id works
         try:
             resp = self.api.booking_proposals(lon=lon, lat=lat,
                                               providernetwork=provider_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         # Assert passing no params raises a value error:
@@ -338,16 +343,16 @@ class FlinksterTests(TestCase):
         # Assert querying by network only works as expected
         try:
             resp = self.api.categories(provider_name)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
         self.assertIn('item', resp)
 
         # Assert querying by network and category ID works as expected
         try:
             resp = self.api.categories(provider_name, by_id=category_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
         self.assertNotIn('items', resp)
 
@@ -355,8 +360,8 @@ class FlinksterTests(TestCase):
         provider = 'flinkster'
         try:
             resp = self.api.prices(provider)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
     def test_rental_details_returns_200_and_decoded_json(self):
@@ -365,24 +370,24 @@ class FlinksterTests(TestCase):
         # Assert that request is good
         try:
             resp = self.api.rental_details(provider, rental_uuid)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
     def test_provider_details_returns_200_and_decoded_json(self):
         provider = 'flinkster'
         try:
             resp = self.api.provider_details(provider)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
     def test_providers_returns_200_and_decoded_json(self):
         provider_network_resource = 'Made_up_since_reference_missing'
         try:
             resp = self.api.providers(provider_network_resource)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
 
 
@@ -404,20 +409,20 @@ class ReisezentrenTests(TestCase):
         # Assert searching with minimal required parameters works
         try:
             resp = self.api.reizentren(by_center_name=center_name)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         try:
             resp = self.api.reizentren(by_center_id=center_id)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         try:
             resp = self.api.reizentren(by_lat_lon=lat_lon)
-        except HTTPError:
-            self.fail('Status Code Was NOT 200!')
+        except HTTPError as e:
+            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
 
         # Assert that a value Error is raised if no or two or more
