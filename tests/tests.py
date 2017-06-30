@@ -1,9 +1,12 @@
+import logging
 from unittest import TestCase
 from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren, Betriebsstellen
 from requests import HTTPError
 from datetime import datetime
 from urllib.parse import unquote
 
+requests_log = logging.getLogger('requests.packages.urllib3.connectionpool')
+requests_log.setLevel(logging.ERROR)
 
 class FahrplanTests(TestCase):
     def __init__(self, *args, **kwargs):
@@ -237,9 +240,9 @@ class FaStaTests(TestCase):
         self.assertIsInstance(resp, (list, dict))
 
     def test_disruption_details_returns_200_and_decoded_json(self):
-        journey_id = '25501678'
+        disruption_num = self.api.disrupted_elevators()[0]['disruptionnumber']
         try:
-            resp = self.api.journey_details(journey_id)
+            resp = self.api.disruption_details(disruption_num)
         except HTTPError as e:
             self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, (list, dict))
