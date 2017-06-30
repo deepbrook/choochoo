@@ -1,4 +1,5 @@
 import datetime
+from urllib.parse import unquote
 
 from .base import Interface
 
@@ -68,5 +69,5 @@ class Fahrplan(Interface):
         :param journey_id: str
         :return: requests.Response()
         """
-        journey_id = journey_id.replace('%', '\%')
+        journey_id = unquote(journey_id)
         return self.request("journeyDetails/%s" % journey_id)
