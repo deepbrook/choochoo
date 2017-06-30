@@ -8,7 +8,7 @@ class BahnPark(Interface):
         https://developer.deutschebahn.com/store/apis/info?name=BahnPark&version=v1&provider=DBOpenData
     """
 
-    def __init__(self, token, key=None, secret=None, config=None):
+    def __init__(self, token=None, key=None, secret=None, config=None):
         super(BahnPark, self).__init__(key=key, secret=secret, token=token,
                                        config=config)
         self.address += 'bahnpark/v1/'

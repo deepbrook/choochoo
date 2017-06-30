@@ -8,7 +8,7 @@ class Reisezentren(Interface):
         https://developer.deutschebahn.com/store/apis/info?name=Reisezentren&version=v1&provider=DBOpenData
     """
 
-    def __init__(self, token, key=None, secret=None, config=None):
+    def __init__(self, token=None, key=None, secret=None, config=None):
         super(Reisezentren, self).__init__(key=key, secret=secret, token=token,
                                         config=config)
         self.address += 'reisezentren/v1/'
