@@ -344,7 +344,7 @@ class FlinksterTests(TestCase):
         except HTTPError as e:
             self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
         self.assertIsInstance(resp, dict)
-        self.assertIn('item', resp)
+        self.assertIn('items', resp)
 
         # Assert querying by network and category ID works as expected
         try:
