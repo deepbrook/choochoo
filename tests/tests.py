@@ -1,5 +1,5 @@
 from unittest import TestCase
-from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren
+from choochoo import Fahrplan, BahnPark, Cargo, FaSta, Flinkster, Reisezentren, Betriebsstellen
 from requests import HTTPError
 from datetime import datetime
 from urllib.parse import unquote
@@ -140,17 +140,12 @@ class BetriebsstellenTests(TestCase):
         self.api = None
 
     def setUp(self):
-        self.api = BahnPark(config='config.ini')
+        self.api = Betriebsstellen(config='config.ini')
 
     def tearDown(self):
         self.api = None
 
     def test_betriebsstellen_returns_200_and_works_as_expected(self):
-        try:
-            resp = self.api.betriebsstellen()
-        except HTTPError as e:
-            self.fail('Status Code Was %s - URL: %s!' % (e.response.status_code, e.request.url))
-        self.assertIsInstance(resp, list)
 
         try:
             resp = self.api.betriebsstellen('Ascheberg')
