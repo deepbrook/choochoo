@@ -60,5 +60,5 @@ class Cargo(Interface):
             endpoint += '/' + by_id
         elif by_lat_long:
             lat, long = by_lat_long
-            endpoint += '/' + lat + '/' + long
+            endpoint += '/' + str(lat) + '/' + str(long)
         return self.request(endpoint, params=endpoint_kwargs)
