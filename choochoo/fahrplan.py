@@ -13,7 +13,7 @@ class Fahrplan(Interface):
     def __init__(self, token=None, key=None, secret=None, config=None):
         super(Fahrplan, self).__init__(key=key, secret=secret, token=token,
                                            config=config)
-        self.address += 'fahrplan-plus/v1/'
+        self.address += 'freeplan/v1/'
 
     def request(self, endpoint, verb=None, **req_kwargs):
         """Returns Data from FahrplanPlus endpoint as python object.
